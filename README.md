@@ -1,5 +1,5 @@
 # PermissionHunter
-PERMISSION HUNTER
+
 
 On first run, you will need to enter the paths to adb, aapt, and keytool when prompted. 
 They will be saved in config.txt and automatically used in the future.
