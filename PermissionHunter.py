@@ -44,8 +44,9 @@ def newFile(command1):
 	print("APK Pulled!")
 	if os.path.isdir(command1) == False:
 		os.system('mkdir '+command1)
-		os.rename('packageList.txt',command1+'/packageList.txt')
-		os.rename('packageListVerbose.txt',command1+'/packageListVerbose.txt')
+		os.remove('packageList.txt')
+		os.remove('packageListVerbose.txt')
+		
 	APKNameList = line[0]
 	APKNameList = APKNameList.split("/")
 	APKName = APKNameList[-1]
@@ -60,7 +61,7 @@ def newFile(command1):
 		print("Using AAPT path "+pathToAAPT+" from config file")
 	if config ==0:
 		pathToAAPT = input("Enter path to aapt: ")
-	os.system('"'+pathToAAPT+'aapt" d permissions '+APKName+' > permissionsVerbose.txt')
+	os.system('"'+pathToAAPT+'aapt" d permissions '+APKName+' > '+command1+'/permissionsVerbose.txt')
 	print("Permissions pulled to permissionsVerbose.txt")
 	print('\n')
 	print('Please Classify the app as one of the following:')
@@ -100,6 +101,8 @@ def newFile(command1):
 		os.system('copy '+APKName+' '+command1+'.zip > nul')
 		print("Unzipping")
 		os.system('powershell.exe Expand-Archive '+pathToCWD+'\\'+command1+'.zip '+pathToCWD+'\\'+command1+'\\'+command1)
+		os.rename(command1+'.zip',command1+'/'+command1+'.zip')
+		os.rename('base.apk',command1+'/base.apk')
 		print("Finished")
 		print('\n')
 	if config == 2:
@@ -126,7 +129,7 @@ def newFile(command1):
 			words=line.split()
 			RSAFile = words[-1]
 			print("PERMISSION SUMMARY:")
-			permissionsFile = open('permissionsVerbose.txt','r')
+			permissionsFile = open(command1+'/permissionsVerbose.txt','r')
 			count = 1
 			classified = 0
 			for permline in permissionsFile:
@@ -278,6 +281,9 @@ else:
 	print('CERT DETAILS')
 	for line in outFile:
 		print(line.strip())
+
+
+
 
 
 
