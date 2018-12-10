@@ -3,23 +3,110 @@ import os
 import sys
 import os.path
 
-def list(input):
-	packagesToList = []
-	for line in open('ResultsDatabase.txt','r'):
-		parts = line.split(' ')
-		if parts[0].strip() == input.strip():
-			print(parts[1].strip())
-			for line1 in open(parts[1].strip()+'/permissionsList.txt'):
-				print(line1.strip())
-			print('\n')
-			for line2 in open(parts[1].strip()+'/certFile.txt'):
-				print(line2.strip())
-			print('\n')
-			print('------------------------------------------------------------------')
-			print('\n')
+def calculateScore(app,classif):
+	riskyBois = []
+	RiskCalcFile = open(app+'/permissionsList.txt','r')
+	for line in RiskCalcFile:
+		if line.strip() == 'PROTECTION_SIGNATURE':
+			RiskCalcFile.close()
+			break
+		elif line.strip() == 'PROTECTION_DANGEROUS':
+			pass
+		else:
+			riskyBois.append(line.strip())
+	directory = ''
+	if classif == '1':
+		directory = 'Games'
+	if classif == '2':
+		directory = 'Social'
+	if classif == '3':
+		directory = 'Utilities'
+	if classif == '4':
+		directory = 'Finance'
+	if classif == '5':
+		directory = 'Productivity'
+	score = 0
+	totalPerm = 0
+	for boi in riskyBois:
+		oneFile = open('Scores/'+directory+'/one.txt','r')
+		threeFile = open('Scores/'+directory+'/three.txt','r')
+		fiveFile = open('Scores/'+directory+'/five.txt','r')
+		for line in oneFile:
+			portion=boi.split('.')
+			if line.strip() == portion[2].strip():
+				score += 1
+				totalPerm += 1
+		oneFile.close()
+		for line in threeFile:
+			portion=boi.split('.')
+			if line.strip() == portion[2].strip():
+				score += 3
+				totalPerm += 1
+		threeFile.close()
+		for line in fiveFile:
+			portion=boi.split('.')
+			if line.strip() == portion[2].strip():
+				score += 5
+				totalPerm += 1
+		fiveFile.close()
+	if totalPerm == 0:
+		print('Permissions Analyzed: 0')
+		print('Total Calculated: 0')
+		print('Risk Score: 1')
+	else:
+		print('\n')
+		print('\n')
+		print('Permissions Analyzed: '+str(totalPerm))
+		print('Total Calculated: '+str(score))
+		print('Risk Score:'+str(score/totalPerm))
+		outLine = classif+' ' +app+' '+str(score/totalPerm)
+		outfile.write(outLine)
+		outfile.write('\n')
+		outfile.close()
+				
+		
+def list(input1):
+	if input1 == 'L':
+		print('\n')
+		print('\n')
+		
+		for line in open('ResultsDatabase.txt','r'):
 			
-	print(packagesToList)
-	exit()
+			
+			parts = line.split( ' ')
+			if len(parts)<=1:
+				exit()
+			print(parts[1].strip() + ' ' + parts[2].strip())
+			#print(parts[1].strip())
+		#print('\n')
+		#packName = input('Enter package name to view: ')
+		#for line1 in open(packName+'/permissionsList.txt'):
+		#	print(line1.strip())
+		#print('\n')
+		#for line2 in open(packName+'/certFile.txt'):
+		#	print(line2.strip())
+		exit()
+	else:
+		#updateTotals()
+		#packagesToList = []
+		print('\n')
+		print('\n')
+		print('Package Name | Risk Score')
+		for line in open('ResultsDatabase.txt','r'):
+			parts = line.split(' ')
+			if parts[0].strip() == input1.strip():
+				print(parts[1].strip() + ' ' + parts[2].strip())
+		#		for line1 in open(parts[1].strip()+'/permissionsList.txt'):
+		#			print(line1.strip())
+		#		print('\n')
+		#		for line2 in open(parts[1].strip()+'/certFile.txt'):
+		#			print(line2.strip())
+		#		print('\n')
+		#		print('------------------------------------------------------------------')
+		#		print('\n')
+		#		
+		#print(packagesToList)
+		exit()
 			
 
 def newFile(command1):
@@ -69,19 +156,13 @@ def newFile(command1):
 	print('   2 - Social Media')
 	print('   3 - Utilities')
 	print('   4 - Finance')
-	print('   5 - Digital Media')
-	print('   6 - Other')
+	print('   5 - Productivity')
 	classification = input(': ')
-	if  int(classification) <= 0 or int(classification) >= 7:
+	if  int(classification) <= 0 or int(classification) >= 6:
 		print('Improper Input. Please use an option from above')
 		classification = input(': ')
-	outLine = ""
-	outLine += classification
-	outLine += " "
-	outLine += command1
-	outfile.write(outLine)
-	outfile.write('\n')
-	outfile.close()
+	
+	
 	signature = []
 	dangerous = []
 	normal = []
@@ -139,7 +220,7 @@ def newFile(command1):
 				else:
 					longperm = permline[23:-2]
 					permparts = longperm.split('.')
-					if 'android' not in permparts:
+					if 'android' not in permparts :
 						custom.append(longperm)
 					else:
 						sigFile = open('PROTECTION_SIGNATURE.txt','r')
@@ -213,11 +294,16 @@ def newFile(command1):
 			os.system('"'+pathToKeytool+'keytool" -printcert -file '+command1+'/'+command1+'/META-INF/'+RSAFile + ' > certFile.txt ' )
 			os.rename('certFile.txt',command1+'/certFile.txt')
 			break
+	calculateScore(command1,classification)
 
 
 
 config = 0
 outfile = open('ResultsDatabase.txt','a')
+print('\n')
+for line in open('logo.txt','r'):
+	print(line.strip())
+print('\n')
 
 if os.path.isfile("config.txt"):
 	config = 1
@@ -232,10 +318,10 @@ if len(sys.argv) ==2 and sys.argv[1]=='-l':
 	print('   2 - Social Media')
 	print('   3 - Utilities')
 	print('   4 - Finance')
-	print('   5 - Digital Media')
-	print('   6 - Other')
-	input = input()
-	list(input)
+	print('   5 - Productivity')
+	print('   L - List all apps with records')
+	input1 = input()
+	list(input1)
 if len(sys.argv)>2:
 	print("Too many arguments. Please only use -f")
 	exit()
@@ -259,7 +345,9 @@ if command1 == "-l":
 		if len(parts) > 1:
 			if parts[0]== 'android':
 				pass
-			if parts[1] == 'android':
+			elif parts[1] == 'android':
+				pass
+			elif parts[1] == 'google' and parts[2] == 'android':
 				pass
 			else:
 				print(line[8:].strip())
@@ -281,6 +369,8 @@ else:
 	print('CERT DETAILS')
 	for line in outFile:
 		print(line.strip())
+	calculateScore(command1,'2')
+
 
 
 
